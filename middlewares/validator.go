@@ -13,8 +13,8 @@ type ContextValue struct {
 	Filename string
 }
 
-func ValidatePath(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func ValidatePath(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
 		filename := r.PathValue("filename")
 
@@ -25,11 +25,11 @@ func ValidatePath(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		next.ServeHTTP(w, r)
-	}
+	})
 }
 
-func ValidateMultipartForm(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func ValidateMultipartForm(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseMultipartForm(5 * 1024 * 1024)
 		if err != nil {
 			log.Println(err)
@@ -63,7 +63,7 @@ func ValidateMultipartForm(next http.HandlerFunc) http.HandlerFunc {
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
-	}
+	})
 }
 
 func isValidImageId(id string) bool {

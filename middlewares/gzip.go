@@ -2,33 +2,52 @@ package middlewares
 
 import (
 	"compress/gzip"
-	"io"
 	"net/http"
 	"strings"
 )
 
 type GzipResponseWriter struct {
-	http.ResponseWriter
-	io.Writer
+	rw         http.ResponseWriter
+	gzipWriter *gzip.Writer
 }
 
-func GzipMiddleware(next http.HandlerFunc) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func NewGzipResponseWriter(w http.ResponseWriter) *GzipResponseWriter {
+	gw := gzip.NewWriter(w)
+	return &GzipResponseWriter{
+		rw:         w,
+		gzipWriter: gw,
+	}
+}
 
+func GzipMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		w.Header().Set("Content-Encoding", "gzip")
+		grw := NewGzipResponseWriter(w)
+		defer grw.Flush()
 
-		gw := gzip.NewWriter(w)
-		defer gw.Close()
+		grw.Header().Add("Content-Encoding", "gzip")
 
-		next.ServeHTTP(GzipResponseWriter{ResponseWriter: w, Writer: gw}, r)
+		next.ServeHTTP(grw, r)
 	})
 }
 
-func (grw GzipResponseWriter) Write(p []byte) (int, error) {
-	return grw.Writer.Write(p)
+func (grw *GzipResponseWriter) Write(b []byte) (int, error) {
+	return grw.gzipWriter.Write(b)
+}
+
+func (grw *GzipResponseWriter) Header() http.Header {
+	return grw.rw.Header()
+}
+
+func (grw *GzipResponseWriter) WriteHeader(statusCode int) {
+	grw.rw.WriteHeader(statusCode)
+}
+
+func (grw *GzipResponseWriter) Flush() {
+	grw.gzipWriter.Flush()
+	grw.gzipWriter.Close()
 }

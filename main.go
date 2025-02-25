@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/karnerfly/fileupload/files"
 	"github.com/karnerfly/fileupload/handlers"
@@ -25,12 +26,23 @@ func main() {
 	fileserver := http.FileServer(http.Dir(*baseDir))
 
 	// REST Apis
-	mux.Handle("POST /files/{id}/{filename}", middlewares.ValidatePath(fh.UploadREST))
-	mux.Handle("GET /files/{id}/{filename}", middlewares.ValidatePath(http.StripPrefix("/files/", fileserver).ServeHTTP))
+	mux.Handle("POST /files/{id}/{filename}", middlewares.ValidatePath(http.HandlerFunc(fh.UploadREST)))
+	mux.Handle("GET /files/{id}/{filename}", middlewares.ValidatePath(http.StripPrefix("/files/", fileserver)))
 
 	// Multipart form routes
-	mux.HandleFunc("GET /upload", fh.ShowFormPage)
-	mux.HandleFunc("POST /files/upload", middlewares.ValidateMultipartForm(fh.UplaodMultipart))
+	mux.Handle("GET /upload", http.HandlerFunc(fh.ShowFormPage))
+	mux.Handle("POST /files/upload", middlewares.ValidateMultipartForm(http.HandlerFunc(fh.UplaodMultipart)))
+
+	// test the gzip middleware
+	mux.Handle("GET /test", middlewares.GzipMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		data, err := os.ReadFile("./demo.txt")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		w.Write(data)
+	})))
 
 	server := http.Server{
 		Addr:    ":" + *addr,
