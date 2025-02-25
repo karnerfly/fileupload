@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Pureparadise56b/fileupload/files"
+	"github.com/karnerfly/fileupload/files"
 )
 
 func TestSaveFile(t *testing.T) {

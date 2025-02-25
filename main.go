@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Pureparadise56b/fileupload/files"
-	"github.com/Pureparadise56b/fileupload/handlers"
-	"github.com/Pureparadise56b/fileupload/middlewares"
+	"github.com/karnerfly/fileupload/files"
+	"github.com/karnerfly/fileupload/handlers"
+	"github.com/karnerfly/fileupload/middlewares"
 )
 
 func main() {

@@ -1,3 +1,3 @@
-module github.com/Pureparadise56b/fileupload
+module github.com/karnerfly/fileupload
 
 go 1.23.4
