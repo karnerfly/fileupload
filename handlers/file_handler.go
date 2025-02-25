@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/PureParadise56b/fileupload/files"
-	"github.com/PureParadise56b/fileupload/middlewares"
+	"github.com/Pureparadise56b/fileupload/files"
+	"github.com/Pureparadise56b/fileupload/middlewares"
 )
 
 type File struct {
