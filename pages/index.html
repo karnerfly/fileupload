@@ -68,11 +68,16 @@
         flex-direction: column;
         width: 100%;
       }
+      .file-size {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
     </style>
   </head>
   <body>
     <h2>Upload file using Form (multipart/form-data)</h2>
-    <form action="/images/upload" method="post" enctype="multipart/form-data">
+    <form action="/files/upload" method="post" enctype="multipart/form-data">
       <div class="form-group">
         <label for="id">ID</label>
         <input
@@ -86,8 +91,23 @@
       <div class="form-group">
         <label for="file">File</label>
         <input type="file" name="file" id="file" />
+        <span class="file-size" id="file-size">No file selected</span>
       </div>
       <input type="submit" value="Upload" />
     </form>
   </body>
+  <script>
+    const fileInput = document.getElementById("file");
+    const fileSizeDisplay = document.getElementById("file-size");
+
+    fileInput.addEventListener("change", function () {
+      if (this.files && this.files[0]) {
+        const fileSize = this.files[0].size;
+        const fileSizeInMB = (fileSize / (1024 * 1024)).toFixed(2);
+        fileSizeDisplay.textContent = `File size: ${fileSizeInMB} MB`;
+      } else {
+        fileSizeDisplay.textContent = "No file selected";
+      }
+    });
+  </script>
 </html>
