@@ -21,7 +21,10 @@ func NewLocalStorage(b string, m int64) *LocalStorage {
 }
 
 func (ls *LocalStorage) Save(path string, body io.Reader) error {
-	fp := ls.getFullPath(path)
+	fp, err := ls.getFullPath(path)
+	if err != nil {
+		return err
+	}
 
 	buf := &bytes.Buffer{}
 	n, err := io.Copy(buf, body)
@@ -63,6 +66,10 @@ func (ls *LocalStorage) Save(path string, body io.Reader) error {
 	return nil
 }
 
-func (ls *LocalStorage) getFullPath(path string) string {
-	return filepath.Join(ls.basePath, path)
+func (ls *LocalStorage) getFullPath(path string) (string, error) {
+	absPath, err := filepath.Abs(filepath.Join(ls.basePath, path))
+	if err != nil {
+		return "", fmt.Errorf("failed to generate absolute path: %w", err)
+	}
+	return absPath, nil
 }
